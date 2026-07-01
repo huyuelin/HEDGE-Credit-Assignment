@@ -1,0 +1,49 @@
+# HEDGE Multi-Agent Credit Assignment — Base Configuration
+
+model:
+  name: "Qwen/Qwen2.5-72B-Instruct"
+  fallback: "Qwen/Qwen2.5-7B-Instruct"
+  local_path_72b: null  # Set after download, e.g. /data/jackey_workspace/hf_cache/models--Qwen--Qwen2.5-72B-Instruct
+  local_path_7b: "/data/jackey_workspace/hf_cache/models--Qwen--Qwen2.5-7B-Instruct"
+  torch_dtype: "bfloat16"
+
+vllm:
+  host: "localhost"
+  port: 8000
+  tensor_parallel_size: 4
+  gpu_memory_utilization: 0.90
+  max_model_len: 4096
+
+credit:
+  m: 16                    # counterfactual resamples
+  temperature: 0.7         # resampling temperature
+  top_p: 0.95
+
+hedge:
+  positive_part: true      # truncate negative shrinkage
+  min_variance: 1.0e-8     # numerical floor
+  adaptive_gamma: 0.10     # EMA decay for Adaptive HEDGE
+  bias_replays: 5          # k for Bias-Tolerant HEDGE
+  stochastic_replays: 5    # k for Stochastic HEDGE
+
+training:
+  lora_rank: 16
+  lora_alpha: 32
+  lora_dropout: 0.05
+  learning_rate: 2.0e-5
+  num_epochs: 3
+  batch_size: 4
+  gradient_accumulation_steps: 4
+  max_grad_norm: 1.0
+  warmup_ratio: 0.05
+
+experiment:
+  team_sizes: [2, 3, 4, 6, 8, 10, 12]
+  seeds: [42, 123, 1337]
+  num_eval_problems: 200
+
+data:
+  gsm8k_path: "/data/jackey_workspace/hedge_data/gsm8k.jsonl"
+  math_path: "/data/jackey_workspace/hedge_data/math500.jsonl"
+  hotpotqa_path: "/data/jackey_workspace/hedge_data/hotpotqa.jsonl"
+  output_dir: "/data/jackey_workspace/hedge_results"
